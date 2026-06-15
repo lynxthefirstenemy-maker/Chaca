@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Chaca Doang</title>
+  <style>
+    /* --- NEW LOADING SCREEN STYLES (BAR STYLE) --- */
+    #loadingScreen {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+    .loading-wrapper {
+      width: 100%;
+      max-width: 340px; /* Makes the loading layout bigger and wider */
+      text-align: center;
+    }
+    .fun-fact-text {
+      color: #0369a1;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+    }
+    .progress-container {
+      width: 100%;
+      height: 12px; /* Thicker, bigger bar */
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 20px;
+      border: 2px dashed #38bdf8;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #38bdf8;
+      border-radius: 20px;
+      animation: fillProgress 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .loading-text {
+      color: #0284c7;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    @keyframes fillProgress {
+      0% { width: 0%; }
+      30% { width: 45%; }
+      70% { width: 85%; }
+      100% { width: 100%; }
+    }
+
+    /* --- ORIGINAL DASHBOARD STYLES --- */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden; 
+      position: relative;
+    }
+
+    .swipe-wrapper {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .swipe-container {
+      display: flex;
+      width: 300%; 
+      transform: translateX(-33.333%); 
+      transition: transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+      will-change: transform;
+    }
+
+    .page {
+      flex: 0 0 33.333%; 
+      width: 33.333%;
+      box-sizing: border-box;
+      padding: 10px 0;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px dashed #38bdf8;
+      padding: 30px;
+      border-radius: 32px;
+      color: #0284c7;
+      box-shadow: 0 12px 28px rgba(56, 189, 248, 0.2);
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-header h1 {
+      margin: 10px 0 0 0;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #0ea5e9; 
+      text-shadow: 1px 1px 0px #fff, 2px 2px 0px rgba(14, 165, 233, 0.2);
+    }
+
+    [contenteditable="true"] {
+      outline: none;
+      display: inline-block;
+    }
+    [contenteditable="true"]:focus {
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 2px solid #0ea5e9;
+      color: #000;
+      border-radius: 4px;
+      padding: 0 4px;
+    }
+
+    .section-title-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      border-bottom: 3px double rgba(56, 189, 248, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #0284c7;
+      margin: 0;
+    }
+
+    .add-btn {
+      background: #38bdf8;
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(56, 189, 248, 0.4);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .add-btn:active {
+      transform: scale(0.9);
+      background: #0ea5e9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-item {
+      background: #ffffff;
+      border: 2px dashed #7dd3fc;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      color: #4a5568;
+      font-weight: 600;
+    }
+
+    .grid-item strong {
+      color: #0ea5e9;
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .scroll-container {
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .bucket-scroll-container {
+      max-height: 410px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .scroll-container::-webkit-scrollbar,
+    .bucket-scroll-container::-webkit-scrollbar,
+    .gallery-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scroll-container::-webkit-scrollbar-track,
+    .bucket-scroll-container::-webkit-scrollbar-track,
+    .gallery-grid::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+    }
+    .scroll-container::-webkit-scrollbar-thumb,
+    .bucket-scroll-container::-webkit-scrollbar-thumb,
+    .gallery-grid::-webkit-scrollbar-thumb {
+      background: #7dd3fc;
+      border-radius: 10px;
+    }
+
+    .fact-list, .bucket-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .fact-list li, .bucket-list li {
+      background: #fffdf9; 
+      border: 2px dashed transparent;
+      margin-bottom: 10px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: #4a5568;
+      box-shadow: 0 4px 6px rgba(125, 211, 252, 0.1);
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-left: 24px;
+      transition: border 0.2s, background 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+    }
+
+    .fact-list li.tap-active, .bucket-list li.tap-active, .gallery-item.tap-active {
+      border: 2px dashed #38bdf8 !important;
+      background: rgba(240, 249, 255, 0.9);
+    }
+
+    .fact-list li::before, .bucket-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: #38bdf8;
+      border-top-left-radius: 16px;
+      border-bottom-left-radius: 16px;
+    }
+
+    .fact-list li:nth-child(4n+2)::before, .bucket-list li:nth-child(4n+2)::before { background: #7dd3fc; }
+    .fact-list li:nth-child(4n+3)::before, .bucket-list li:nth-child(4n+3)::before { background: #2dd4bf; }
+    .fact-list li:nth-child(4n+4)::before, .bucket-list li:nth-child(4n+4)::before { background: #cbd5e1; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-height: 410px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .gallery-item {
+      background: #fff;
+      border: 2px dashed #7dd3fc;
+      border-radius: 20px;
+      padding: 8px;
+      box-shadow: 0 6px 12px rgba(125, 211, 252, 0.15);
+      text-align: center;
+      transition: border 0.2s, background 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 14px;
+      background-color: #f0f9ff;
+      pointer-events: none;
+    }
+
+    .gallery-item span {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: #0ea5e9;
+    }
+
+    .dots-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .dot {
+      width: 60px; 
+      height: 6px;
+      background: rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    }
+
+    .status-badge {
+      background: #38bdf8;
+      color: white;
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: inline-block;
+      border: 2px dashed rgba(255, 255, 255, 0.6);
+    }
+
+    .action-sheet-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .action-sheet-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .action-sheet {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 20px;
+      box-sizing: border-box;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .action-sheet-overlay.show .action-sheet {
+      transform: translateY(0);
+    }
+    .action-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-edit { background: #e0f2fe; color: #0369a1; }
+    .btn-clear { background: #fef3c7; color: #b45309; }
+    .btn-delete { background: #fee2e2; color: #b91c1c; }
+    .btn-cancel { background: #f1f5f9; color: #475569; margin-bottom: 0; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: rgba(255, 255, 255, 0.95);
+      border: 3px dashed #38bdf8;
+      padding: 25px;
+      border-radius: 28px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(14, 165, 233, 0.25);
+      transform: scale(0.9);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+      box-sizing: border-box;
+    }
+    .modal-overlay.show .modal-box {
+      transform: scale(1);
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    .modal-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px dashed #7dd3fc;
+      border-radius: 14px;
+      font-size: 14px;
+      color: #4a5568;
+      font-weight: 600;
+      background: #ffffff;
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus {
+      border-color: #38bdf8;
+      background: #f0f9ff;
+    }
+    .modal-checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a5568;
+      cursor: pointer;
+    }
+    .modal-checkbox-container input {
+      width: 18px;
+      height: 18px;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .modal-btn {
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .modal-btn:active {
+      transform: scale(0.95);
+    }
+    .modal-btn-primary {
+      background: #38bdf8;
+      color: white;
+    }
+    .modal-btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- UPDATED LOADING SCREEN WITH PROGRESS BAR AND CUSTOM FUN FACT -->
+  <div id="loadingScreen">
+    <div class="loading-wrapper">
+      <div class="fun-fact-text">
+        ✨ <strong>Fun Fact:</strong> He REALLY loves attention from those he loves/cared 🥺
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar"></div>
+      </div>
+      <div class="loading-text">Connecting to Dashboard...</div>
+    </div>
+  </div>
+
+  <input type="file" id="imageFilePicker" accept="image/*" style="display: none;">
+
+  <div class="swipe-wrapper">
+    <div class="swipe-container" id="swipeContainer">
+      
+      <div class="page" id="pageBucket">
+        <div class="card">
+          <div class="profile-header">
+            <span class="status-badge" id="bucketBadgeText">ADVENTURES</span>
+            <h1 contenteditable="true" id="bucketTitle">Bucket List</h1>
+          </div>
+
+          <div class="section-title-container" style="margin-top:0;">
+            <div class="section-title">Dreams & Goals</div>
+            <button class="add-btn" id="addBucketBtn">+</button>
+          </div>
+          <div class="bucket-scroll-container">
+            <ul class="bucket-list" id="bucketList"></ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="page" id="pageMain">
+        <div class="card">
+          <div class="profile-header">
+            <span class="status-badge" id="badgeText">ABOUT HIM</span>
+            <h1 contenteditable="true" id="profileName">Your Name</h1>
+          </div>
+
+          <div class="section-title-container" style="margin-top:0;">
+            <div class="section-title">Core Profile</div>
+          </div>
+          <div class="grid">
+            <div class="grid-item"><strong>Birthday 🎂</strong><span contenteditable="true" id="birthVal">7/2/12</span></div>
+            <div class="grid-item"><strong>Fav Color 🎨</strong><span contenteditable="true" id="colorVal">Blue</span></div>
+            <div class="grid-item"><strong>MBTI 🧠</strong><span contenteditable="true" id="mbtiVal">INTP</span></div>
+            <div class="grid-item"><strong>Fav Snack 🍿</strong><span contenteditable="true" id="snackVal">Ice Cream</span></div>
+          </div>
+
+          <div class="section-title-container">
+            <div class="section-title">Collected Facts & Traits</div>
+            <button class="add-btn" id="addFactBtn">+</button>
+          </div>
+          <div class="scroll-container">
+            <ul class="fact-list" id="factList"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="pageGallery">
+        <div class="card">
+          <div class="profile-header">
+            <span class="status-badge">Gallery</span>
+            <h1 contenteditable="true" id="galleryTitle">His Favorites</h1>
+          </div>
+
+          <div class="section-title-container" style="margin-top:0;">
+            <div class="section-title">Things He Loves</div>
+            <button class="add-btn" id="addGalleryBtn">+</button>
+          </div>
+          <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dots-container">
+      <div class="dot" id="dot1"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+    </div>
+  </div>
+
+  <div class="action-sheet-overlay" id="actionSheetOverlay">
+    <div class="action-sheet">
+      <button class="action-btn btn-edit" id="actionEdit">✏️ Edit content</button>
+      <button class="action-btn btn-clear" id="actionClear">🧹 Clear Text</button>
+      <button class="action-btn btn-delete" id="actionDelete">🗑️ Delete Item</button>
+      <button class="action-btn btn-cancel" id="actionCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="modalTitle">Edit Item</h3>
+      <input type="text" class="modal-input" id="modalInput" placeholder="Type here...">
+      <label class="modal-checkbox-container" id="modalCheckContainer" style="display: none;">
+        <input type="checkbox" id="modalCheckbox">
+        <span>Also upload a new image file?</span>
+      </label>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
+        <button class="modal-btn modal-btn-primary" id="modalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // SMOOTH LOADING SCREEN TIMER
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loadingScreen');
+      setTimeout(() => {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          loader.style.visibility = 'hidden';
+        }, 500);
+      }, 1600); // 1.6s gives the custom bar animation perfect time to fully play out
+    });
+
+    const DEFAULT_DATA = {
+      name: "His Name",
+      badgeText: "ABOUT HIM",
+      bucketBadgeText: "ADVENTURES",
+      bucketTitle: "Bucket List",
+      galleryTitle: "His Favorites",
+      profile: { birthday: "7/2/12", favColor: "Blue", mbti: "INTP", favSnack: "Ice Cream" },
+      facts: [
+        "Loves Rimuru so much 🩵🩵",
+        "Loves Anime.",
+        "Loves spending time coding.",
+        "Loves to be called a \"Good Boy\" 🥺",
+        "Loves Chaca as much as he loves Rimuru 💕"
+      ],
+      bucketList: [
+        { text: "Idk 😵‍💫", checked: false },
+        { text: "Same here", checked: false },
+        { text: "Frr", checked: false }
+      ],
+      gallery: [
+        { title: "Rimuru 🩵", imgUrl: "https://i.ibb.co.com/B5m6bPvT/98fddc76-876d-44f5-bfdc-49044bdd61d7.jpg" },
+        { title: "Favorite 2", imgUrl: "" },
+        { title: "Favorite 3", imgUrl: "" }
+      ]
+    };
+
+    let activeData = JSON.parse(localStorage.getItem('dashboardData')) || DEFAULT_DATA;
+    
+    if (!activeData.bucketList) activeData.bucketList = [...DEFAULT_DATA.bucketList];
+    if (!activeData.bucketTitle) activeData.bucketTitle = DEFAULT_DATA.bucketTitle;
+    if (!activeData.bucketBadgeText) activeData.bucketBadgeText = DEFAULT_DATA.bucketBadgeText;
+
+    if (activeData.bucketList.length > 0 && typeof activeData.bucketList[0] === 'string') {
+      activeData.bucketList = activeData.bucketList.map(item => ({ text: item, checked: false }));
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem('dashboardData', JSON.stringify(activeData));
+      } catch (e) {
+        alert("Local app memory storage limit hit! Try picking a smaller resolution photo.");
+      }
+    }
+
+    const nameEl = document.getElementById('profileName');
+    const badgeEl = document.getElementById('badgeText');
+    const bucketBadgeEl = document.getElementById('bucketBadgeText');
+    const bucketTitleEl = document.getElementById('bucketTitle');
+    const titleEl = document.getElementById('galleryTitle');
+    const birthEl = document.getElementById('birthVal');
+    const colorEl = document.getElementById('colorVal');
+    const mbtiEl = document.getElementById('mbtiVal');
+    const snackEl = document.getElementById('snackVal');
+
+    nameEl.innerText = activeData.name;
+    badgeEl.innerText = activeData.badgeText;
+    bucketBadgeEl.innerText = activeData.bucketBadgeText;
+    bucketTitleEl.innerText = activeData.bucketTitle;
+    titleEl.innerText = activeData.galleryTitle;
+    birthEl.innerText = activeData.profile.birthday;
+    colorEl.innerText = activeData.profile.favColor;
+    mbtiEl.innerText = activeData.profile.mbti;
+    snackEl.innerText = activeData.profile.favSnack;
+
+    nameEl.addEventListener('input', () => { activeData.name = nameEl.innerText; saveToStorage(); });
+    bucketTitleEl.addEventListener('input', () => { activeData.bucketTitle = bucketTitleEl.innerText; saveToStorage(); });
+    titleEl.addEventListener('input', () => { activeData.galleryTitle = titleEl.innerText; saveToStorage(); });
+    birthEl.addEventListener('input', () => { activeData.profile.birthday = birthEl.innerText; saveToStorage(); });
+    colorEl.addEventListener('input', () => { activeData.profile.favColor = colorEl.innerText; saveToStorage(); });
+    mbtiEl.addEventListener('input', () => { activeData.profile.mbti = mbtiEl.innerText; saveToStorage(); });
+    snackEl.addEventListener('input', () => { activeData.profile.favSnack = snackEl.innerText; saveToStorage(); });
+
+    const overlay = document.getElementById('actionSheetOverlay');
+    const filePicker = document.getElementById('imageFilePicker');
+    let targetType = null; 
+    let targetIndex = null;
+    let targetElement = null;
+    let fileTargetMode = 'edit';
+
+    const customModal = document.getElementById('customModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalInput = document.getElementById('modalInput');
+    const modalCheckContainer = document.getElementById('modalCheckContainer');
+    const modalCheckbox = document.getElementById('modalCheckbox');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalSaveBtn = document.getElementById('modalSaveBtn');
+    let currentModalCallback = null;
+
+    function openActionSheet(type, index, el) {
+      targetType = type;
+      targetIndex = index;
+      targetElement = el;
+      overlay.classList.add('show');
+    }
+
+    function closeActionSheet() {
+      if(targetElement) targetElement.classList.remove('tap-active');
+      overlay.classList.remove('show');
+    }
+
+    function showCustomModal({ title, defaultValue, showCheckbox, onSave }) {
+      modalTitle.innerText = title;
+      modalInput.value = defaultValue || '';
+      modalInput.style.display = 'block';
+      modalCheckbox.checked = false;
+      modalCheckContainer.style.display = showCheckbox ? 'flex' : 'none';
+      customModal.classList.add('show');
+      modalInput.focus();
+      
+      currentModalCallback = onSave;
+    }
+
+    function hideCustomModal() {
+      customModal.classList.remove('show');
+      currentModalCallback = null;
+    }
+
+    modalCancelBtn.addEventListener('click', hideCustomModal);
+    modalSaveBtn.addEventListener('click', () => {
+      if (currentModalCallback) {
+        currentModalCallback(modalInput.value, modalCheckbox.checked);
+      }
+      hideCustomModal();
+    });
+
+    document.getElementById('actionCancel').addEventListener('click', closeActionSheet);
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeActionSheet(); });
+
+    document.getElementById('actionEdit').addEventListener('click', () => {
+      closeActionSheet();
+      if (targetType === 'fact') {
+        showCustomModal({
+          title: "Edit Fact sentence:",
+          defaultValue: activeData.facts[targetIndex],
+          showCheckbox: false,
+          onSave: (newValue) => {
+            if (newValue.trim() !== '') {
+              activeData.facts[targetIndex] = newValue;
+              saveToStorage();
+              renderFacts();
+            }
+          }
+        });
+      } else if (targetType === 'bucket') {
+        showCustomModal({
+          title: "Edit Bucket List Item:",
+          defaultValue: activeData.bucketList[targetIndex].text,
+          showCheckbox: false,
+          onSave: (newValue) => {
+            if (newValue.trim() !== '') {
+              activeData.bucketList[targetIndex].text = newValue;
+              saveToStorage();
+              renderBucketList();
+            }
+          }
+        });
+      } else if (targetType === 'gallery') {
+        showCustomModal({
+          title: "Change item description:",
+          defaultValue: activeData.gallery[targetIndex].title,
+          showCheckbox: true,
+          onSave: (newTitle, wantImageUpload) => {
+            activeData.gallery[targetIndex].title = newTitle;
+            if (wantImageUpload) {
+              fileTargetMode = 'edit';
+              filePicker.click();
+            } else {
+              saveToStorage();
+              renderGallery();
+            }
+          }
+        });
+      }
+    });
+
+    /* Native Base64 Internal Device Storage Encoder */
+    filePicker.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      
+      modalTitle.innerText = "⏳ Saving into Phone Storage...";
+      if (customModal.classList.contains('show')) {
+        modalSaveBtn.disabled = true;
+        modalCancelBtn.disabled = true;
+      }
+
+      reader.onload = function(event) {
+        const base64LocalUrl = event.target.result;
+
+        if (fileTargetMode === 'edit') {
+          activeData.gallery[targetIndex].imgUrl = base64LocalUrl;
+          saveToStorage();
+          renderGallery();
+          filePicker.value = "";
+        } else if (fileTargetMode === 'new') {
+          showCustomModal({
+            title: "Enter description title:",
+            defaultValue: "",
+            showCheckbox: false,
+            onSave: (finalTitle) => {
+              activeData.gallery.push({ title: finalTitle || "New Image", imgUrl: base64LocalUrl });
+              saveToStorage();
+              renderGallery();
+              filePicker.value = "";
+            }
+          });
+        }
+        modalTitle.innerText = "Edit Item";
+        modalSaveBtn.disabled = false;
+        modalCancelBtn.disabled = false;
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('actionClear').addEventListener('click', () => {
+      closeActionSheet();
+      if (targetType === 'fact') activeData.facts[targetIndex] = "";
+      else if (targetType === 'bucket') activeData.bucketList[targetIndex].text = "";
+      else if (targetType === 'gallery') activeData.gallery[targetIndex].title = "";
+      saveToStorage();
+      
+      if (targetType === 'fact') renderFacts();
+      else if (targetType === 'bucket') renderBucketList();
+      else renderGallery();
+    });
+
+    document.getElementById('actionDelete').addEventListener('click', () => {
+      closeActionSheet();
+      if (targetType === 'fact') {
+        activeData.facts.splice(targetIndex, 1);
+        saveToStorage();
+        renderFacts();
+      } else if (targetType === 'bucket') {
+        activeData.bucketList.splice(targetIndex, 1);
+        saveToStorage();
+        renderBucketList();
+      } else if (targetType === 'gallery') {
+        activeData.gallery.splice(targetIndex, 1);
+        saveToStorage();
+        renderGallery();
+      }
+    });
+
+    function bindPressGestures(el, type, index) {
+      let pressTimer;
+      let isLongPress = false;
+      let hasMoved = false;
+
+      const startHandler = (e) => {
+        isLongPress = false;
+        hasMoved = false;
+        el.classList.add('tap-active');
+        
+        pressTimer = setTimeout(() => {
+          isLongPress = true;
+          openActionSheet(type, index, el);
+        }, 600);
+      };
+
+      const endHandler = (e) => {
+        clearTimeout(pressTimer);
+        el.classList.remove('tap-active');
+        
+        if (!isLongPress && !hasMoved) {
+          if (type === 'bucket') {
+            e.preventDefault();
+            e.stopPropagation();
+            activeData.bucketList[index].checked = !activeData.bucketList[index].checked;
+            saveToStorage();
+            renderBucketList();
+          } else if (type === 'fact' || type === 'gallery') {
+            e.preventDefault();
+            e.stopPropagation();
+            openActionSheet(type, index, el);
+          }
+        }
+      };
+
+      const moveHandler = () => {
+        hasMoved = true;
+        clearTimeout(pressTimer);
+        el.classList.remove('tap-active');
+      };
+
+      if (window.PointerEvent) {
+        el.addEventListener('pointerdown', startHandler);
+        el.addEventListener('pointerup', endHandler);
+        el.addEventListener('pointermove', moveHandler);
+        el.addEventListener('pointercancel', moveHandler);
+      } else {
+        el.addEventListener('touchstart', startHandler, { passive: true });
+        el.addEventListener('touchend', endHandler);
+        el.addEventListener('touchmove', moveHandler);
+        el.addEventListener('mousedown', startHandler);
+        el.addEventListener('mouseup', endHandler);
+        el.addEventListener('mousemove', moveHandler);
+      }
+    }
+
+    function renderFacts() {
+      const factList = document.getElementById('factList');
+      factList.innerHTML = '';
+      activeData.facts.forEach((fact, idx) => {
+        const li = document.createElement('li');
+        li.innerText = fact || "[Empty Fact - Hold to edit]";
+        bindPressGestures(li, 'fact', idx);
+        factList.appendChild(li);
+      });
+    }
+
+    function renderBucketList() {
+      const bucketList = document.getElementById('bucketList');
+      bucketList.innerHTML = '';
+      activeData.bucketList.forEach((goal, idx) => {
+        const li = document.createElement('li');
+        const itemText = goal.text || "[Empty Goal - Hold to edit]";
+        
+        if (goal.checked) {
+          li.innerHTML = `<span style="text-decoration: line-through; opacity: 0.6; pointer-events:none;">✅ ${itemText}</span>`;
+        } else {
+          li.innerHTML = `<span style="pointer-events:none;">${itemText}</span>`;
+        }
+        
+        bindPressGestures(li, 'bucket', idx);
+        bucketList.appendChild(li);
+      });
+    }
+
+    function renderGallery() {
+      const galleryGrid = document.getElementById('galleryGrid');
+      galleryGrid.innerHTML = '';
+      activeData.gallery.forEach((item, idx) => {
+        const itemWrapper = document.createElement('div');
+        itemWrapper.className = 'gallery-item';
+        
+        const img = document.createElement('img');
+        img.src = item.imgUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='120' viewBox='0 0 150 120'><rect width='100%' height='100%' fill='%23f0f9ff'/><text x='50%' y='55%' font-family='sans-serif' font-size='12' fill='%230ea5e9' font-weight='bold' text-anchor='middle'>Hold to Upload</text></svg>";
+        
+        const label = document.createElement('span');
+        label.innerText = item.title || "[Click & Hold]";
+
+        itemWrapper.appendChild(img);
+        itemWrapper.appendChild(label);
+        bindPressGestures(itemWrapper, 'gallery', idx);
+        galleryGrid.appendChild(itemWrapper);
+      });
+    }
+
+    document.getElementById('addFactBtn').addEventListener('click', () => {
+      showCustomModal({
+        title: "Enter a new fact trait text item:",
+        defaultValue: "",
+        showCheckbox: false,
+        onSave: (newFact) => {
+          if(newFact.trim() !== '') { 
+            activeData.facts.push(newFact); 
+            saveToStorage(); 
+            renderFacts(); 
+          }
+        }
+      });
+    });
+
+    document.getElementById('addBucketBtn').addEventListener('click', () => {
+      showCustomModal({
+        title: "Add a new bucket list dream:",
+        defaultValue: "",
+        showCheckbox: false,
+        onSave: (newGoal) => {
+          if(newGoal.trim() !== '') { 
+            activeData.bucketList.push({ text: newGoal, checked: false }); 
+            saveToStorage(); 
+            renderBucketList(); 
+          }
+        }
+      });
+    });
+
+    document.getElementById('addGalleryBtn').addEventListener('click', () => {
+      fileTargetMode = 'new';
+      filePicker.click();
+    });
+
+    renderFacts();
+    renderBucketList();
+    renderGallery();
+
+    const container = document.getElementById('swipeContainer');
+    const dots = [document.getElementById('dot1'), document.getElementById('dot2'), document.getElementById('dot3')];
+
+    let startX = 0;
+    let currentPage = 1; 
+
+    function updatePagePosition() {
+      container.style.transform = `translateX(-${currentPage * 33.333}%)`;
+      dots.forEach((dot, index) => {
+        if (index === currentPage) dot.classList.add('active');
+        else dot.classList.remove('active');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', updatePagePosition);
+    window.addEventListener('load', updatePagePosition);
+
+    window.addEventListener('touchstart', (e) => {
+      if(document.activeElement.getAttribute('contenteditable') === 'true' || document.activeElement.classList.contains('modal-input')) return;
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (document.activeElement.getAttribute('contenteditable') === 'true' || document.activeElement.classList.contains('modal-input')) return;
+      const endX = e.changedTouches[0].clientX;
+      const diffX = startX - endX;
+
+      if (Math.abs(diffX) > 50) {
+        if (diffX > 0 && currentPage < 2) {
+          currentPage++;
+        } 
+        else if (diffX < 0 && currentPage > 0) {
+          currentPage--;
+        }
+        updatePagePosition();
+      }
+    });
+  </script>
+</body>
+</html>
