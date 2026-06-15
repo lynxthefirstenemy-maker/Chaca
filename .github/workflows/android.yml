@@ -21,19 +21,44 @@ jobs:
         run: |
           npm install -g cordova
           
-          # --- SET YOUR APP NAME HERE ---
-          # You can change "Buat Chaca Doang" to whatever name you want!
-          cordova create build-dir com.chaca.app "About Him"
+          # Print the files so we can debug if it fails
+          echo "=== Current Files in Repository ==="
+          ls -la
+          echo "==================================="
           
-          # This line automatically handles if your index.html is in the main folder or a www folder
-          if [ -d "www" ]; then
-            cp -r www/* build-dir/www/
-          else
+          cordova create build-dir com.chaca.app "Buat Chaca Doang"
+          
+          # Smart copy: Finds any HTML file if index.html isn't explicitly named
+          if [ -f "index.html" ]; then
             cp index.html build-dir/www/
+          elif [ -f "www/index.html" ]; then
+            cp www/index.html build-dir/www/
+          else
+            echo "Looking for any alternative HTML file..."
+            ANY_HTML=$(ls *.html 2>/dev/null | head -n 1)
+            if [ ! -z "$ANY_HTML" ]; then
+              cp "$ANY_HTML" build-dir/www/index.html
+            else
+              echo "ERROR: No HTML files found in the repository root!"
+              exit 1
+            fi
           fi
           
           cd build-dir
           cordova platform add android
+          
+          if [ -f "../icon.png" ]; then
+            cp ../icon.png .
+            sed -i '/<\/widget>/i \    <icon src="icon.png" \/>' config.xml
+          fi
+          
+          cordova build android --no-telemetry
+
+      - name: Upload Finished APK File
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaca-app-apk
+          path: build-dir/platforms/android/app/build/outputs/apk/debug/app-debug.apk
           
           # --- SET YOUR APP ICON HERE ---
           # If icon.png exists in your main repository, this injects it into the app config
