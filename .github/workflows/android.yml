@@ -37,9 +37,9 @@ jobs:
           
           # --- SET YOUR APP ICON HERE ---
           # If icon.png exists in your main repository, this injects it into the app config
-          if [ -f "../icon.png" ]; then
-            cp ../icon.png .
-            sed -i '/<\/widget>/i \    <icon src="icon.png" \/>' config.xml
+          if [ -f "../icon.jpeg" ]; then
+            cp ../icon.jpeg .
+            sed -i '/<\/widget>/i \    <icon src="icon.jpeg" \/>' config.xml
           fi
           
           cordova build android --no-telemetry
