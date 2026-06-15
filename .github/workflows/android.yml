@@ -21,25 +21,35 @@ jobs:
         run: |
           npm install -g cordova
           
-          # --- SET YOUR APP NAME HERE ---
-          # You can change "Buat Chaca Doang" to whatever name you want!
+          # --- UPDATED APP NAME ---
           cordova create build-dir com.chaca.app "About Him"
           
-          # This line automatically handles if your index.html is in the main folder or a www folder
-          if [ -d "www" ]; then
-            cp -r www/* build-dir/www/
-          else
+          if [ -f "index.html" ]; then
             cp index.html build-dir/www/
+          elif [ -f "www/index.html" ]; then
+            cp www/index.html build-dir/www/
           fi
           
           cd build-dir
           cordova platform add android
           
-          # --- SET YOUR APP ICON HERE ---
-          # If icon.png exists in your main repository, this injects it into the app config
+          # --- UPDATED FOR ICON.JPEG ---
           if [ -f "../icon.jpeg" ]; then
             cp ../icon.jpeg .
+            
+            # Injects the app icon configuration pointing to icon.jpeg
             sed -i '/<\/widget>/i \    <icon src="icon.jpeg" \/>' config.xml
+            
+            # Tells the app to use icon.jpeg as the splash screen image
+            sed -i '/<\/widget>/i \    <splash src="icon.jpeg" \/>' config.xml
+            
+            # Colors the background of the splash screen to match your light-blue theme layout beautifully!
+            sed -i '/<\/widget>/i \    <preference name="SplashScreenBackgroundColor" value="#bae6fd" \/>' config.xml
+            
+            # Centers the icon nicely on the screen and stops it from stretching weirdly
+            sed -i '/<\/widget>/i \    <preference name="SplashMaintainAspectRatio" value="true" \/>' config.xml
+            sed -i '/<\/widget>/i \    <preference name="AutoHideSplashScreen" value="true" \/>' config.xml
+            sed -i '/<\/widget>/i \    <preference name="SplashScreenDelay" value="3000" \/>' config.xml
           fi
           
           cordova build android --no-telemetry
