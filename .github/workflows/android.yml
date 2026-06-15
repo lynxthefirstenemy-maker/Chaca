@@ -20,11 +20,28 @@ jobs:
       - name: Set up Cordova and Build Package
         run: |
           npm install -g cordova
-          cordova create build-dir com.chaca.app "Buat Chaca Doang"
-          rm -rf build-dir/www/*
-          cp -r www/* build-dir/www/
+          
+          # --- SET YOUR APP NAME HERE ---
+          # You can change "Buat Chaca Doang" to whatever name you want!
+          cordova create build-dir com.chaca.app "About Him"
+          
+          # This line automatically handles if your index.html is in the main folder or a www folder
+          if [ -d "www" ]; then
+            cp -r www/* build-dir/www/
+          else
+            cp index.html build-dir/www/
+          fi
+          
           cd build-dir
           cordova platform add android
+          
+          # --- SET YOUR APP ICON HERE ---
+          # If icon.png exists in your main repository, this injects it into the app config
+          if [ -f "../icon.png" ]; then
+            cp ../icon.png .
+            sed -i '/<\/widget>/i \    <icon src="icon.png" \/>' config.xml
+          fi
+          
           cordova build android --no-telemetry
 
       - name: Upload Finished APK File
