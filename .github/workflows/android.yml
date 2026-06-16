@@ -35,8 +35,8 @@ jobs:
           cordova platform add android
           
           # --- FILE PERMISSIONS & WEB PICKER FIX INJECTIONS ---
-          # Injects native storage permissions into the config.xml for AndroidManifest
-          sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">' config.xml
+          # Fixed line below: Added the missing xmlns:android namespace declaration to prevent AttributePrefixUnbound crash
+          sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*" xmlns:android="http://schemas.android.com/apk/res/android">' config.xml
           sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />' config.xml
           sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />' config.xml
           sed -i '/<\/widget>/i \    </config-file>' config.xml
