@@ -34,15 +34,17 @@ jobs:
           cd build-dir
           cordova platform add android
           
-          # --- FILE PERMISSIONS & WEB PICKER FIX INJECTIONS ---
-          # Fixed line below: Added the missing xmlns:android namespace declaration to prevent AttributePrefixUnbound crash
+          # --- FILE PERMISSIONS FIX INJECTIONS ---
           sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*" xmlns:android="http://schemas.android.com/apk/res/android">' config.xml
           sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />' config.xml
           sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />' config.xml
           sed -i '/<\/widget>/i \    </config-file>' config.xml
           
-          # Installs the critical Cordova plugin that connects the HTML input button to Android
-          cordova plugin add cordova-plugin-file-chooser --save
+          # --- NETWORK BYPASS FOR FORBIDDEN 403 MAVEN ERROR ---
+          # Forces Gradle to fall back to Google & MavenLocal repositories first instead of getting stuck on MavenCentral
+          if [ -f "platforms/android/build.gradle" ]; then
+            sed -i 's/mavenCentral()/google()\n        mavenCentral()/g' platforms/android/build.gradle
+          fi
           
           # --- APP ICON CONFIGURATION ---
           if [ -f "../icon.jpeg" ]; then
