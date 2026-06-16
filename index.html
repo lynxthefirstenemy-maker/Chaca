@@ -671,11 +671,42 @@
       activeData.bucketList = activeData.bucketList.map(item => ({ text: item, checked: false }));
     }
 
+    // Native IndexedDB handlers to hold high-res files without hitting standard 5MB limits
+    function getDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("AppImageStorage", 1);
+        request.onupgradeneeded = (e) => { e.target.result.createObjectStore("images"); };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function saveImageToDB(index, base64Str) {
+      const db = await getDB();
+      const tx = db.transaction("images", "readwrite");
+      tx.objectStore("images").put(base64Str, index.toString());
+      return tx.complete;
+    }
+
+    async function loadImageFromDB(index) {
+      const db = await getDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction("images", "readonly");
+        const request = tx.objectStore("images").get(index.toString());
+        request.onsuccess = (e) => resolve(e.target.result || "");
+      });
+    }
+
     function saveToStorage() {
       try {
-        localStorage.setItem('dashboardData', JSON.stringify(activeData));
+        const textData = JSON.parse(JSON.stringify(activeData));
+        textData.gallery = textData.gallery.map(item => ({
+          title: item.title,
+          imgUrl: (item.imgUrl && item.imgUrl.startsWith("data:")) ? "indexeddb" : item.imgUrl
+        }));
+        localStorage.setItem('dashboardData', JSON.stringify(textData));
       } catch (e) {
-        alert("Local app memory storage limit hit! Try picking a smaller resolution photo.");
+        console.error("Local text memory save error", e);
       }
     }
 
@@ -810,24 +841,23 @@
       }
     });
 
-    /* Native Base64 Internal Device Storage Encoder */
     filePicker.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      
       modalTitle.innerText = "⏳ Saving into Phone Storage...";
       if (customModal.classList.contains('show')) {
         modalSaveBtn.disabled = true;
         modalCancelBtn.disabled = true;
       }
 
-      reader.onload = function(event) {
+      reader.onload = async function(event) {
         const base64LocalUrl = event.target.result;
 
         if (fileTargetMode === 'edit') {
-          activeData.gallery[targetIndex].imgUrl = base64LocalUrl;
+          activeData.gallery[targetIndex].imgUrl = "indexeddb";
+          await saveImageToDB(targetIndex, base64LocalUrl);
           saveToStorage();
           renderGallery();
           filePicker.value = "";
@@ -836,8 +866,10 @@
             title: "Enter description title:",
             defaultValue: "",
             showCheckbox: false,
-            onSave: (finalTitle) => {
-              activeData.gallery.push({ title: finalTitle || "New Image", imgUrl: base64LocalUrl });
+            onSave: async (finalTitle) => {
+              const newIdx = activeData.gallery.length;
+              activeData.gallery.push({ title: finalTitle || "New Image", imgUrl: "indexeddb" });
+              await saveImageToDB(newIdx, base64LocalUrl);
               saveToStorage();
               renderGallery();
               filePicker.value = "";
@@ -848,7 +880,6 @@
         modalSaveBtn.disabled = false;
         modalCancelBtn.disabled = false;
       };
-
       reader.readAsDataURL(file);
     });
 
@@ -966,15 +997,20 @@
       });
     }
 
-    function renderGallery() {
+    async function renderGallery() {
       const galleryGrid = document.getElementById('galleryGrid');
       galleryGrid.innerHTML = '';
-      activeData.gallery.forEach((item, idx) => {
+      for (let idx = 0; idx < activeData.gallery.length; idx++) {
+        const item = activeData.gallery[idx];
         const itemWrapper = document.createElement('div');
         itemWrapper.className = 'gallery-item';
         
         const img = document.createElement('img');
-        img.src = item.imgUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='120' viewBox='0 0 150 120'><rect width='100%' height='100%' fill='%23f0f9ff'/><text x='50%' y='55%' font-family='sans-serif' font-size='12' fill='%230ea5e9' font-weight='bold' text-anchor='middle'>Hold to Upload</text></svg>";
+        if (item.imgUrl === "indexeddb") {
+          img.src = await loadImageFromDB(idx) || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='120'><rect width='100%' height='100%' fill='%23f0f9ff'/></svg>";
+        } else {
+          img.src = item.imgUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='120' viewBox='0 0 150 120'><rect width='100%' height='100%' fill='%23f0f9ff'/><text x='50%' y='55%' font-family='sans-serif' font-size='12' fill='%230ea5e9' font-weight='bold' text-anchor='middle'>Hold to Upload</text></svg>";
+        }
         
         const label = document.createElement('span');
         label.innerText = item.title || "[Click & Hold]";
@@ -983,7 +1019,7 @@
         itemWrapper.appendChild(label);
         bindPressGestures(itemWrapper, 'gallery', idx);
         galleryGrid.appendChild(itemWrapper);
-      });
+      }
     }
 
     document.getElementById('addFactBtn').addEventListener('click', () => {
