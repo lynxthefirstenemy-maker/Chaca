@@ -21,9 +21,10 @@ jobs:
         run: |
           npm install -g cordova
           
-          # --- UPDATED APP NAME ---
+          # Create the fresh project folder
           cordova create build-dir com.chaca.app "About Him"
           
+          # Move your HTML code into the build directory
           if [ -f "index.html" ]; then
             cp index.html build-dir/www/
           elif [ -f "www/index.html" ]; then
@@ -33,20 +34,23 @@ jobs:
           cd build-dir
           cordova platform add android
           
-          # --- UPDATED FOR ICON.JPEG ---
+          # --- FILE PERMISSIONS & WEB PICKER FIX INJECTIONS ---
+          # Injects native storage permissions into the config.xml for AndroidManifest
+          sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">' config.xml
+          sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />' config.xml
+          sed -i '/<\/widget>/i \        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />' config.xml
+          sed -i '/<\/widget>/i \    </config-file>' config.xml
+          
+          # Installs the critical Cordova plugin that connects the HTML input button to Android
+          cordova plugin add cordova-plugin-file-chooser --save
+          
+          # --- APP ICON CONFIGURATION ---
           if [ -f "../icon.jpeg" ]; then
             cp ../icon.jpeg .
             
-            # Injects the app icon configuration pointing to icon.jpeg
             sed -i '/<\/widget>/i \    <icon src="icon.jpeg" \/>' config.xml
-            
-            # Tells the app to use icon.jpeg as the splash screen image
             sed -i '/<\/widget>/i \    <splash src="icon.jpeg" \/>' config.xml
-            
-            # Colors the background of the splash screen to match your light-blue theme layout beautifully!
             sed -i '/<\/widget>/i \    <preference name="SplashScreenBackgroundColor" value="#bae6fd" \/>' config.xml
-            
-            # Centers the icon nicely on the screen and stops it from stretching weirdly
             sed -i '/<\/widget>/i \    <preference name="SplashMaintainAspectRatio" value="true" \/>' config.xml
             sed -i '/<\/widget>/i \    <preference name="AutoHideSplashScreen" value="true" \/>' config.xml
             sed -i '/<\/widget>/i \    <preference name="SplashScreenDelay" value="3000" \/>' config.xml
